@@ -52,7 +52,7 @@ Provide a brief, helpful response (2-3 sentences maximum).";
                     options = new
                     {
                         temperature = 0.7,
-                        max_tokens = 200
+                        max_tokens = 500
                     }
                 };
 
