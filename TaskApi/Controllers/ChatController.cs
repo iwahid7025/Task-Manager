@@ -11,12 +11,19 @@ namespace TaskApi.Controllers
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<ChatController> _logger;
-        private const string OllamaApiUrl = "http://localhost:11434/api/generate";
+        private readonly IConfiguration _configuration;
+        private readonly string _ollamaApiUrl;
+        private readonly string _ollamaTagsUrl;
+        private readonly string _ollamaModel;
 
-        public ChatController(IHttpClientFactory httpClientFactory, ILogger<ChatController> logger)
+        public ChatController(IHttpClientFactory httpClientFactory, ILogger<ChatController> logger, IConfiguration configuration)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
+            _configuration = configuration;
+            _ollamaApiUrl = Environment.GetEnvironmentVariable("OLLAMA_API_URL") ?? string.Empty;
+            _ollamaTagsUrl = Environment.GetEnvironmentVariable("OLLAMA_TAGS_URL") ?? string.Empty;
+            _ollamaModel = Environment.GetEnvironmentVariable("OLLAMA_MODEL") ?? string.Empty;
         }
 
         [HttpPost]
@@ -39,7 +46,7 @@ Provide a brief, helpful response (2-3 sentences maximum).";
 
                 var ollamaRequest = new
                 {
-                    model = "llama3.2:1b",
+                    model = _ollamaModel,
                     prompt = prompt,
                     stream = false,
                     options = new
@@ -52,7 +59,7 @@ Provide a brief, helpful response (2-3 sentences maximum).";
                 var jsonContent = JsonSerializer.Serialize(ollamaRequest);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                var response = await client.PostAsync(OllamaApiUrl, content);
+                var response = await client.PostAsync(_ollamaApiUrl, content);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -88,7 +95,7 @@ Provide a brief, helpful response (2-3 sentences maximum).";
             try
             {
                 var client = _httpClientFactory.CreateClient();
-                var response = await client.GetAsync("http://localhost:11434/api/tags");
+                var response = await client.GetAsync(_ollamaTagsUrl);
 
                 if (response.IsSuccessStatusCode)
                 {

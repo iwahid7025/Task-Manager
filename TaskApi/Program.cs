@@ -4,6 +4,21 @@ using TaskApi.Data;
 // Create the web application builder with default configuration
 var builder = WebApplication.CreateBuilder(args);
 
+// Load environment variables from .env file
+var root = Directory.GetCurrentDirectory();
+var dotenv = Path.Combine(root, ".env");
+if (File.Exists(dotenv))
+{
+    foreach (var line in File.ReadAllLines(dotenv))
+    {
+        if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#'))
+            continue;
+        var parts = line.Split('=', 2, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 2)
+            Environment.SetEnvironmentVariable(parts[0].Trim(), parts[1].Trim());
+    }
+}
+
 // Configure Entity Framework Core with SQLite database
 // This sets up the database context to use SQLite with a local file called "tasks.db"
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -12,13 +27,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Configure Cross-Origin Resource Sharing (CORS) to allow frontend access
 // This is essential for allowing the React frontend to communicate with the API
 const string ClientPolicy = "ClientPolicy";
+var corsOriginsEnv = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS") ?? string.Empty;
+var allowedOrigins = corsOriginsEnv.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: ClientPolicy, policy =>
     {
         policy
-            // Allow requests from React development server and common alternative ports
-            .WithOrigins("http://localhost:5173", "http://localhost:3000")
+            // Allow requests from React development server and configured origins
+            .WithOrigins(allowedOrigins)
             // Allow any headers in requests (Content-Type, Authorization, etc.)
             .AllowAnyHeader()
             // Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
@@ -30,6 +48,9 @@ builder.Services.AddCors(options =>
 // Register MVC controllers for handling API endpoints
 // This enables attribute-based routing and controller dependency injection
 builder.Services.AddControllers();
+
+// Register HttpClient for making external API calls (e.g., to Ollama)
+builder.Services.AddHttpClientFactory();
 
 // Build the configured web application
 var app = builder.Build();
