@@ -1,7 +1,21 @@
 {
+  // Root TypeScript configuration file for the Task Manager React application
+  // This is the main tsconfig that orchestrates other configuration files
+  
+  // Empty files array since this is a solution-style configuration
+  // All actual files are handled by the referenced configurations
   "files": [],
+  
+  // Project references enable TypeScript's project reference feature
+  // This allows different parts of the project to have different configurations
+  // while maintaining proper type checking and build coordination
   "references": [
+    // Configuration for the main React application code
+    // Handles all source files in src/ directory with React-specific settings
     { "path": "./tsconfig.app.json" },
+    
+    // Configuration for Vite and other Node.js tooling
+    // Handles configuration files like vite.config.ts with Node.js types
     { "path": "./tsconfig.node.json" }
   ]
 }
