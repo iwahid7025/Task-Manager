@@ -24,6 +24,8 @@ if (File.Exists(dotenv))
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=tasks.db"));
 
+builder.Services.AddHttpClient();
+
 // Configure Cross-Origin Resource Sharing (CORS) to allow frontend access
 // This is essential for allowing the React frontend to communicate with the API
 const string ClientPolicy = "ClientPolicy";
