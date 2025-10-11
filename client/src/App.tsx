@@ -99,12 +99,15 @@ const App: React.FC = () => {
       {loading ? (
         <p>Loading…</p>
       ) : (
-        <TaskList 
-          items={tasks} 
-          onUpdated={handleUpdated} 
-          onDeleted={handleDeleted} 
+        <TaskList
+          items={tasks}
+          onUpdated={handleUpdated}
+          onDeleted={handleDeleted}
         />
       )}
+
+      {/* Travel Chat Assistant */}
+      <TravelChat />
     </div>
   );
 };
