@@ -51,9 +51,6 @@ builder.Services.AddCors(options =>
 // This enables attribute-based routing and controller dependency injection
 builder.Services.AddControllers();
 
-// Register HttpClient for making external API calls (e.g., to Ollama)
-builder.Services.AddHttpClientFactory();
-
 // Build the configured web application
 var app = builder.Build();
 

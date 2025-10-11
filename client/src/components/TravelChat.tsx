@@ -36,7 +36,8 @@ export default function TravelChat() {
 
   const checkOllamaStatus = async () => {
     try {
-      const response = await fetch('http://localhost:5049/api/chat/health');
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+      const response = await fetch(`${apiBaseUrl}/api/chat/health`);
       const data = await response.json();
       setOllamaStatus(data.available ? 'available' : 'unavailable');
     } catch {
@@ -61,7 +62,8 @@ export default function TravelChat() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5049/api/chat', {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+      const response = await fetch(`${apiBaseUrl}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
