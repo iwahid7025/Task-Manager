@@ -39,7 +39,7 @@ Provide a brief, helpful response (2-3 sentences maximum).";
 
                 var ollamaRequest = new
                 {
-                    model = "llama3.2",
+                    model = "llama3.2:1b",
                     prompt = prompt,
                     stream = false,
                     options = new
