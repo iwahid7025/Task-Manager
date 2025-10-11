@@ -10,6 +10,7 @@
 import { useEffect, useState } from "react";
 import TaskForm from "./components/TaskFrom";
 import TaskList from "./components/TaskList";
+import TravelChat from './components/TravelChat';
 import { getTasks, type TaskItem } from "./api";
 
 /**
