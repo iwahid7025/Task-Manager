@@ -1,5 +1,19 @@
+/**
+ * TravelChat Component
+ *
+ * A floating chat interface that connects to an AI travel assistant powered by Ollama.
+ * Features:
+ * - Real-time messaging with AI
+ * - Service health monitoring
+ * - Auto-scroll to latest messages
+ * - Clean, modern UI with animations
+ */
+
 import { useState, useRef, useEffect } from 'react';
 
+/**
+ * Interface representing a single chat message
+ */
 interface Message {
   id: number;
   text: string;
@@ -8,6 +22,7 @@ interface Message {
 }
 
 export default function TravelChat() {
+  // Chat messages state - initialized with welcome message
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 0,
@@ -16,24 +31,43 @@ export default function TravelChat() {
       timestamp: new Date()
     }
   ]);
+
+  // Input field state
   const [input, setInput] = useState('');
+
+  // Loading state while waiting for AI response
   const [isLoading, setIsLoading] = useState(false);
+
+  // Controls chat window visibility
   const [isOpen, setIsOpen] = useState(false);
+
+  // Tracks Ollama service availability status
   const [ollamaStatus, setOllamaStatus] = useState<'checking' | 'available' | 'unavailable'>('checking');
+
+  // Reference for auto-scrolling to bottom of messages
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  /**
+   * Smoothly scrolls the chat to the bottom to show latest messages
+   */
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Auto-scroll when new messages arrive
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
+  // Check Ollama service status on component mount
   useEffect(() => {
     checkOllamaStatus();
   }, []);
 
+  /**
+   * Checks if the Ollama service is available by calling the health endpoint
+   * Updates the status indicator in the chat header
+   */
   const checkOllamaStatus = async () => {
     try {
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -45,11 +79,19 @@ export default function TravelChat() {
     }
   };
 
+  /**
+   * Handles sending a message to the AI
+   * - Adds user message to chat
+   * - Calls backend API
+   * - Displays AI response or error message
+   */
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Prevent sending empty messages or while loading
     if (!input.trim() || isLoading) return;
 
+    // Create and display user message immediately
     const userMessage: Message = {
       id: Date.now(),
       text: input,
@@ -62,6 +104,7 @@ export default function TravelChat() {
     setIsLoading(true);
 
     try {
+      // Send message to backend API (URL from environment variable)
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
       const response = await fetch(`${apiBaseUrl}/api/chat`, {
         method: 'POST',
@@ -76,7 +119,8 @@ export default function TravelChat() {
       }
 
       const data = await response.json();
-      
+
+      // Display AI response
       const aiMessage: Message = {
         id: Date.now() + 1,
         text: data.message,
@@ -86,6 +130,7 @@ export default function TravelChat() {
 
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
+      // Display error message to user
       const errorMessage: Message = {
         id: Date.now() + 1,
         text: 'Sorry, I could not process your request. Please make sure Ollama is running.',
@@ -98,6 +143,9 @@ export default function TravelChat() {
     }
   };
 
+  /**
+   * Clears all messages and resets to initial welcome message
+   */
   const clearChat = () => {
     setMessages([
       {

@@ -5,14 +5,19 @@ using TaskApi.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // Load environment variables from .env file
+// This manual loader reads key-value pairs from the .env file and sets them as environment variables
+// Format expected: KEY=VALUE (one per line, # for comments)
 var root = Directory.GetCurrentDirectory();
 var dotenv = Path.Combine(root, ".env");
 if (File.Exists(dotenv))
 {
     foreach (var line in File.ReadAllLines(dotenv))
     {
+        // Skip empty lines and comments
         if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#'))
             continue;
+
+        // Split on first '=' to separate key from value (value may contain '=')
         var parts = line.Split('=', 2, StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 2)
             Environment.SetEnvironmentVariable(parts[0].Trim(), parts[1].Trim());
@@ -24,10 +29,13 @@ if (File.Exists(dotenv))
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=tasks.db"));
 
+// Register HttpClient factory for making HTTP requests to external services (e.g., Ollama AI)
+// This enables dependency injection of IHttpClientFactory in controllers
 builder.Services.AddHttpClient();
 
 // Configure Cross-Origin Resource Sharing (CORS) to allow frontend access
 // This is essential for allowing the React frontend to communicate with the API
+// Origins are loaded from the CORS_ALLOWED_ORIGINS environment variable (semicolon-separated)
 const string ClientPolicy = "ClientPolicy";
 var corsOriginsEnv = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS") ?? string.Empty;
 var allowedOrigins = corsOriginsEnv.Split(';', StringSplitOptions.RemoveEmptyEntries);
